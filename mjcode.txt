@@ -1,2 +1,4 @@
 Magnus testfil
 ny rad
+en ny rad till
+
