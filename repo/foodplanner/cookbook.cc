@@ -21,9 +21,10 @@ public:
   //Add a new recipe
   void addRecipe()
   {
-    recipeNode = new node(); //Create a new recipe
+    node *recipeNode = new node(); //Create a new recipe
     recipeNode->rec = new recipe();//Set the new recipe 
     head = recipeNode;         //Move the head to the new recipe
+    printf("%p\n", head);
   }
   
 private:
@@ -34,6 +35,6 @@ private:
     node *next;
   };
   node *head;
-  node *recipeNode;
+  
 };
 
