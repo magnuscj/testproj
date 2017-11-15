@@ -10,5 +10,7 @@ int main()
   cookbook *myCookBook = new cookbook();
   myCookBook->addRecipe();
   myCookBook->addRecipe();
+  myCookBook->addRecipe();
+  myCookBook->addRecipe();
   return 0;
 }

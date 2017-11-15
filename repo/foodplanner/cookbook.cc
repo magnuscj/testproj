@@ -1,40 +1,23 @@
 #include <iostream>
 #include "recipe.cc"
+#include "cookbook.h"
 
 using namespace std;
 
 
-class cookbook
-{
-  
-
-
-public:
-
   //Constructor
-  cookbook()
+  cookbook::cookbook()
   {
     head = NULL;    //Set head to null
     cout<<"cookbook\n";
   }
 
   //Add a new recipe
-  void addRecipe()
+  void cookbook::addRecipe()
   {
-    node *recipeNode = new node(); //Create a new recipe
+    node *recipeNode= new node();  //Create a new recipe
     recipeNode->rec = new recipe();//Set the new recipe 
-    head = recipeNode;         //Move the head to the new recipe
+    head = recipeNode;             //Move the head to the new recipe
     printf("%p\n", head);
   }
   
-private:
- 
-  struct node
-  {
-    recipe *rec;
-    node *next;
-  };
-  node *head;
-  
-};
-

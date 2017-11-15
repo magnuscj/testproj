@@ -1,17 +1,16 @@
+#include "recipe.h"
 #include <iostream>
+
 
 using namespace std;
 
-class recipe
-{
 
-public:
   //constructor
-  recipe()
+   recipe::recipe()
   {
     cout<<"recipe\n";
   }
   
-};
+
 
   
