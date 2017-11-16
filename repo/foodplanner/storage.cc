@@ -4,8 +4,6 @@
 
 use namespace std;
 
-
-
 storage::storage()
 {
 }
