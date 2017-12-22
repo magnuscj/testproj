@@ -1,0 +1,15 @@
+#include <iostream>
+#include "tinyxml2.h"
+
+using namespace std;
+using namespace tinyxml2;
+
+int main()
+{
+  cout<<"Hej";
+  tinyxml2::XMLDocument doc;
+  XMLError err = doc.LoadFile( "details.xml" );
+  XMLElement* element = doc.RootElement();
+  printf("Element %s", element->GetText());
+  return 0;
+}
