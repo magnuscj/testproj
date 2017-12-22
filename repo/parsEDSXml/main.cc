@@ -14,42 +14,55 @@ int main()
     printf("Error %d \n", err);
 
   XMLElement* root = doc.RootElement();                    //Devices-Detail-Response
-  cout<<root->Name()<<"\n";                           
+  //cout<<root->Name()<<"\n";                           
 
   //PollCount
   XMLNode* rootchild     = root->FirstChild();               
-  cout<<rootchild->Value()<<": "<<rootchild->FirstChild()->Value()<<"\n";
+  //cout<<rootchild->Value()<<": "<<rootchild->FirstChild()->Value()<<"\n";
 
   //DevicesConnected
   XMLNode *siblingNode  = rootchild->NextSibling();           
-  cout<<siblingNode->Value()<<": "<<siblingNode->FirstChild()->Value()<<"\n";
+  //cout<<siblingNode->Value()<<": "<<siblingNode->FirstChild()->Value()<<"\n";
 
   //LoopTime
   XMLNode *siblingNode2  = siblingNode->NextSibling();         
-  cout<<siblingNode2->Value()<<": "<<siblingNode2->FirstChild()->Value()<<"\n";
+  //cout<<siblingNode2->Value()<<": "<<siblingNode2->FirstChild()->Value()<<"\n";
 
   //MAC
-  cout<<root->FirstChildElement("MACAddress")->FirstChild()->ToText()->Value()<<"\n";
-  cout<<root->FirstChildElement("MACAddress")->Value()<<"\n";
-
+  //cout<<root->FirstChildElement("MACAddress")->Value()<<": "<<root->FirstChildElement("MACAddress")->FirstChild()->ToText()->Value()<<"\n";
+  
   XMLNode* lastChild     = root->LastChild();               
-  cout<<lastChild->Value()<<"\n";
-  cout<<lastChild ->FirstChildElement("Temperature")->FirstChild()->ToText()->Value()<<"\n"; 
-  
-  XMLNode* firstChild     = root->FirstChild();               
-  cout<<firstChild->Value()<<"\n";
-  //cout<<firstChild->FirstChildElement("Temperature")->FirstChild()->ToText()->Value()<<"\n";   
-  //cout<<firstChild->FirstChildElement("Temperature")->FirstChild()->ToText()->Value()<<"\n"; 
-  
-  
-  //  XMLNode* lastNode = siblingNode->LastChild(); 
-  //cout<<lastNode->FirstChildElement("Temperature")->FirstChild()->ToText()->Value()<<"\n";
+  //cout<<lastChild->Value()<<"\n";
+  //cout<<lastChild ->FirstChildElement("Temperature")->FirstChild()->ToText()->Value()<<"\n"; 
 
-
-
-  //cout<<siblingNode->FirstChildElement("VoltagePower")->FirstChild()->ToText()->Value()<<"\n";
+  /********************************/
   
- 
+  cout<<"traverse\n";
+  while(rootchild!=NULL)
+  {
+
+    if(strcmp(rootchild->Value(),"owd_DS18B20")==0)
+    {
+      cout<<rootchild->Value()<<"-----------------\n";
+    
+      siblingNode = rootchild->FirstChild();
+      while(siblingNode!=NULL)
+      {
+            
+        if (!siblingNode->NoChildren() &&
+	  (strcmp(siblingNode->Value(), "Temperature")==0))
+        {
+	  cout<<siblingNode->Value()<<": ";
+	  cout<<siblingNode->FirstChild()->Value()<<"\n";
+        }
+        
+        siblingNode=siblingNode->NextSibling();
+      }
+    }
+    rootchild = rootchild->NextSibling();
+  }
+
+  
  
   
   return 0;
