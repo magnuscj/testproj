@@ -114,6 +114,7 @@ int main()
       /********************************/
   
       cout<<"Loop number "<<counter <<" with "<<errors<<" errors and "<<socketErrors<<" socket errors.\n";
+
       while(rootchild!=NULL)
       { 
         if(strcmp(rootchild->Value(),"owd_DS18B20")==0)
