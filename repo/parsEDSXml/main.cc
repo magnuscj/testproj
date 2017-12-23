@@ -1,6 +1,7 @@
 #include <iostream>
 #include "tinyxml2.h"
 #include <vector>
+#include "../curl/include/curl/curl.h"
 
 using namespace std;
 using namespace tinyxml2;
@@ -47,8 +48,7 @@ int main()
     
       siblingNode = rootchild->FirstChild();
       while(siblingNode!=NULL)
-      {
-            
+      {     
         if (!siblingNode->NoChildren() &&
 	  (strcmp(siblingNode->Value(), "Temperature")==0))
         {
@@ -62,8 +62,11 @@ int main()
     rootchild = rootchild->NextSibling();
   }
 
-  
- 
+  CURL *curl;
+  CURLcode res;
+
+  //curl = curl_easy_init();
+
   
   return 0;
 }
