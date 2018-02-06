@@ -32,9 +32,6 @@ int main(int argc, char* argv[])
   mysql_init(&mysql);
 
   
-
-  
-  
   //char sensorsTypes[2][2]={{"owd_DS18B20","Temperature"},
   //                         {"owd_DS2423" ,"Counter_A"}}; 
   
