@@ -14,6 +14,7 @@
 #include <time.h>
 #include "tinyxml2.h"
 #include <vector>
+#include <utility>
 using namespace std;
 using namespace tinyxml2;
 
@@ -103,6 +104,13 @@ void edsServerHandler::decodeServerData()
   string sensorid = "";
   tinyxml2::XMLDocument doc;
   XMLError err = doc.Parse(to);
+  std::pair <string,string> sensorType;
+  vector <std::pair <string,string>> sensorTypes;
+
+  sensorTypes.push_back(std::make_pair("owd_DS18B20","Temperature"));
+  sensorTypes.push_back(std::make_pair("owd_DS2423","Counter_A"));
+
+
   if(err)
   {
 	  printf("Error %d \n", err);
@@ -110,7 +118,8 @@ void edsServerHandler::decodeServerData()
   }
   else
   {
-    for(int i=0;i<1;i++)
+//    for(int i=0;i<1;i++)
+    for( auto sensorType : sensorTypes)
     {
       XMLElement* root    = doc.RootElement();                    //Devices-Detail-Response
 
@@ -122,7 +131,7 @@ void edsServerHandler::decodeServerData()
      // sensor sensorData;
       while(rootchild!=NULL)
       { 
-        if((strcmp(rootchild->Value(),"owd_DS18B20")==0) || (strcmp(rootchild->Value(),"owd_DS2423")==0))
+        if((sensorType.first.compare(rootchild->Value())==0))
         {
           siblingNode = rootchild->FirstChild();
 	  sensorData.type = rootchild->Value();
@@ -134,13 +143,8 @@ void edsServerHandler::decodeServerData()
 		  {
 			  sensorData.id = siblingNode->FirstChild()->Value();
 		  }
-
 		  if(!siblingNode->NoChildren() &&
-				  (strcmp(siblingNode->Value(), "Temperature")==0))
-		  {
-                          sensorData.value = siblingNode->FirstChild()->Value();
-		  }
-		  else if (!siblingNode->NoChildren() && (strcmp(siblingNode->Value(), "Counter_A"))==0)
+				  (sensorType.second.compare(siblingNode->Value()) ==0))
 		  {
                           sensorData.value = siblingNode->FirstChild()->Value();
 		  }
@@ -182,7 +186,7 @@ void edsServerHandler::storeServerData()
   for( auto &sen : sensors)
   {
     cout<<left;
-    cout<<setw(15)<<sen.type<<"----"<<sen.id<<": "<<sen.value<<"\n";
+    cout<<setw(15)<<sen.type<<sen.id<<": "<<sen.value<<"\n";
   
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);

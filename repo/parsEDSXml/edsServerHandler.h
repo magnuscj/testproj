@@ -19,21 +19,21 @@ class edsServerHandler
     void decodeServerData();
     void storeServerData();
   private:
-  struct sockaddr_in servaddr;                                                     
-  struct hostent *hp;
-  char* edsServerIp;
-  int sock_id;
-  char message[2024*1024] = {0};
-  int  msglen;
-  char* to;
-  char* ipAddress;
-  struct sensor
-  {
-    std::string type;
-    std::string id;
-    std::string value;
-  } sensorData;
+    struct sockaddr_in servaddr;                                                     
+    struct hostent *hp;
+    char* edsServerIp;
+    int sock_id;
+    char message[2024*1024] = {0};
+    int  msglen;
+    char* to;
+    char* ipAddress;
+    struct sensor
+    {
+      std::string type;
+      std::string id;
+      std::string value;
+    } sensorData;
 
-  std::vector<sensor> sensors;
+   std::vector<sensor> sensors;
 };
 #endif
