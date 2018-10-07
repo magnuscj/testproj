@@ -9,24 +9,18 @@
 #include <netdb.h>
 #include <iostream>
 #include <vector>
+#include <curl/curl.h>
 
 class edsServerHandler
 {
   public:
     edsServerHandler(char*& ip);
-    void connectToEdsServer();
-    void readEdsServerData();
     void decodeServerData();
     void storeServerData();
+    std::string retreivexml(std::string ipaddr);
   private:
-    struct sockaddr_in servaddr;                                                     
-    struct hostent *hp;
-    char* edsServerIp;
-    int sock_id;
-    char message[2024*1024] = {0};
-    int  msglen;
-    char* to;
     char* ipAddress;
+    CURL *curl;
     struct sensor
     {
       std::string type;

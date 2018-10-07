@@ -15,106 +15,78 @@
 #include "tinyxml2.h"
 #include <vector>
 #include <utility>
+#include <curl/curl.h>
 using namespace std;
 using namespace tinyxml2;
 
+
+
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
 //Constructor
 //-------------------------------
 
 edsServerHandler::edsServerHandler(char*& ip)
 {
    ipAddress = ip;
-   struct hostent *hp;                                                                      
-   sock_id = 0;
-   msglen = 0;
+   curl = curl_easy_init();
    sensors.clear();
-
 }
 
 
-void edsServerHandler::connectToEdsServer()
+std::string edsServerHandler::retreivexml(std::string ipaddr)
 {
-
-   if((sock_id = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-   {
-      cout<<stderr<<", Couldn't get a socket.\n";
-   }
-   else
-   {
-      //cout<<"Socket id "<<sock_id<<".\n";
-   }
+  std:string urlstr =  "http://" + ipaddr + "/details.xml";
   
-   memset(&servaddr,0,sizeof(servaddr));
-   
-   //get address
-   if(((hp = gethostbyname(ipAddress)) == NULL))
-   {
-      cout<<stderr<<", Couldn't get an address.\n"; 
-   }
-   else
-   {
-      //cout<<stderr<<", got an address.\n";
-   }
+  CURLcode res;
+  std::string readBuffer;
 
-   memcpy((char *)&servaddr.sin_addr.s_addr, (char *)hp->h_addr, hp->h_length);
-
-   //fill in port number and type
-   servaddr.sin_port = htons(80);
-   servaddr.sin_family = AF_INET;
-
-   //make the connection
-   if(connect(sock_id, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
-   {
-      cout<<stderr<<", Couldn't connect.\n";
-   }
-   else
-   {
-      //cout<<stderr<<", got a connection!!!\n";
-   }
-}
-
-void edsServerHandler::readEdsServerData()
-{
-	
-   char request[] = "GET /details.xml HTTP/1.0\n\r\n";
-   //Send the HTTP request
-   write(sock_id,request,strlen(request));
-
-   //Sleep for a while so that the server get time to fill the buffer
-   usleep(200000);//0,000 000 1
-   
-   //read the response
-   msglen = read(sock_id,message,2024*1024);
-   //cout<<"response from "<<sock_id<<" is "<< msglen<<" bytes long\n";
+  if(curl) 
+  {
+    curl_easy_setopt(curl, CURLOPT_URL, urlstr.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    /* example.com is redirected, so we tell libcurl to follow redirection */ 
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
  
-   close(sock_id);
-   
-   int i = 127; //Skip the initial response message
-   int j = (msglen>127 ? msglen : 127);
-   to = new char[j-i+1];
-   strncpy(to, message+i, j-i);
-   to[j-i]='\0';
-   //print the reasponse
-   //cout<<to;
+    /* Perform the request, res will get the return code */ 
+    res = curl_easy_perform(curl);
+    /* Check for errors */ 
+    if(res != CURLE_OK)
+      fprintf(stderr, "curl_easy_perform() failed: %s\n",
+              curl_easy_strerror(res));
  
+    /* always cleanup */ 
+    curl_easy_cleanup(curl);
+    return readBuffer;
+  }
 }
 
 void edsServerHandler::decodeServerData()
 {
   string sensorid = "";
   tinyxml2::XMLDocument doc;
-  XMLError err = doc.Parse(to);
+  string xmldocstr = this->retreivexml(ipAddress);
+  const char* xmldoc = xmldocstr.c_str();
+  //std::cout<<"doc"<<this->retreivexml(ipAddress)<<"\n";
+  
+  XMLError err = doc.Parse(xmldoc);
   std::pair <string,string> sensorType;
   vector <std::pair <string,string>> sensorTypes;
 
   sensorTypes.push_back(std::make_pair("owd_DS18B20","Temperature"));
+  sensorTypes.push_back(std::make_pair("owd_DS18S20","Temperature"));
   sensorTypes.push_back(std::make_pair("owd_DS2423","Counter_A"));
-
 
   if(err)
   {
 	  printf("Error %d \n", err);
-	  std::system("clear");
+    cout<<"Ip"<<xmldocstr<<"\n";
+	  //TODO count error of this type j
+    //std::system("clear");
   }
   else
   {
@@ -129,28 +101,27 @@ void edsServerHandler::decodeServerData()
         if((sensorType.first.compare(rootchild->Value())==0))
         {
           siblingNode = rootchild->FirstChild();
-	  sensorData.type = rootchild->Value();
+	        sensorData.type = rootchild->Value();
 
-	  while(siblingNode!=NULL)
+	        while(siblingNode!=NULL)
           {
-		  if(!siblingNode->NoChildren() && (strcmp(siblingNode->Value(), "ROMId")==0))
-		  {
-			  sensorData.id = siblingNode->FirstChild()->Value();
-		  }
-		  if(!siblingNode->NoChildren() && (sensorType.second.compare(siblingNode->Value()) ==0))
-		  {
-                          sensorData.value = siblingNode->FirstChild()->Value();
-		  }
-		  siblingNode=siblingNode->NextSibling();
-	  }
-	sensors.push_back(sensorData);
-	}
-	rootchild = rootchild->NextSibling();
+            if(!siblingNode->NoChildren() && (strcmp(siblingNode->Value(), "ROMId")==0))
+            {
+              sensorData.id = siblingNode->FirstChild()->Value();
+            }
+            
+            if(!siblingNode->NoChildren() && (sensorType.second.compare(siblingNode->Value()) ==0))
+            {
+              sensorData.value = siblingNode->FirstChild()->Value();
+            }
+            siblingNode=siblingNode->NextSibling();
+	        }
+	        sensors.push_back(sensorData);
+	      }
+	      rootchild = rootchild->NextSibling();
       }
     }
   }
-
-  delete(to);
   doc.Clear();
 }
 
@@ -179,7 +150,7 @@ void edsServerHandler::storeServerData()
   for( auto &sensor : sensors)
   {
     cout<<left;
-    cout<<setw(13)<<sensor.type<<sensor.id<<": "<<setw(8)<<sensor.value<<"  "<<ipAddress<<"\n";  
+    cout<<setw(13)<<sensor.type<<sensor.id<<": "<<setw(10)<<sensor.value<<"  "<<ipAddress<<"\n";  
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
 

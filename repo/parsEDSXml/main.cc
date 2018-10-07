@@ -14,29 +14,22 @@ using namespace std;
 void test(char* ipadr )
 {
     edsServerHandler eds(ipadr);
-    eds.connectToEdsServer();
-    eds.readEdsServerData();
     eds.decodeServerData();
     eds.storeServerData();
 }
-
-
 
 int main(int argc, char* argv[])
 {
   std::vector<std::thread> tve;
   std::vector<double> elapsedTime;
+  int noOfBins = 40;
+  std::vector<int> bins(noOfBins,0);
+   
 
-    int noOfBins = 10;
-    int max = 5;
-    int min = 0;
-    std::vector<double> bins(noOfBins,0.0);
-
-
-  while(1)//for(int j=0;j<30;j++)
+  while(1)//for(int j=0;j<100;j++)//while(1)//
   {
     std::cout << "\x1B[2J\x1B[H";
-    auto start3 = std::chrono::system_clock::now();
+    auto start = std::chrono::system_clock::now();
     
     for(int i = 1;i < argc;i++)
     {
@@ -46,27 +39,31 @@ int main(int argc, char* argv[])
     {
       t.join();
     }
-   tve.clear();  
-    auto end3 = std::chrono::system_clock::now();
+    tve.clear();  
+    
+    auto end = std::chrono::system_clock::now();
    
-    std::chrono::duration<double> elapsed_seconds3 = end3-start3;
-    std::time_t end_time3 = std::chrono::system_clock::to_time_t(end3);
-    std::cout<< "Elapsed time: " << elapsed_seconds3.count() << "s\n";
-  //  elapsedTime.push_back(elapsed_seconds3.count());
-   // std::sort(elapsedTime.begin(), elapsedTime.end());
-  //  for(auto elapsed : elapsedTime)
- // 	cout<<elapsed<<"s\n";
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time3 = std::chrono::system_clock::to_time_t(end);
+    std::cout<< "Elapsed time: " << elapsed_seconds.count() << "s\n";
+  
+    
+    double step = 0.1;
+    double bin = 0;
+    for(int i=0;i<noOfBins;i++)
+    { 
+      if(elapsed_seconds.count()>bin && elapsed_seconds.count()<(bin + step))
+      {
+        bins[i]++;
+      }
+      bin = bin + step;
+    }
+
+    for(auto mybin : bins)
+      cout<<mybin<<",";
+    cout<<"\n";  
+ 
     sleep(60); 
-  //
-  //  double  cnt =  max/noOfBins;
-  //  std::vector<double>::iterator it = bins.begin();
-  //  for(int i =0;i<noOfBins;i++)
-  //  {
-  //      if( elapsed_seconds3.count() < cnt)
-  //       TODO! 
-  //  }  
-  //}
-  // 
  } 
   
   return 0;
