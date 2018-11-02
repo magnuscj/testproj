@@ -138,7 +138,7 @@ void edsServerHandler::storeServerData()
   
   mysql_init(&mysql);
 
-   connection = mysql_real_connect(&mysql,"192.168.1.45","root","root",0,0,0,0);
+   connection = mysql_real_connect(&mysql,"127.0.0.1","dbuser","dbuser",0,0,0,0);
 
    if (connection == NULL)
    {
