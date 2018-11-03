@@ -49,6 +49,7 @@ std::string edsServerHandler::retreivexml(std::string ipaddr)
     curl_easy_setopt(curl, CURLOPT_URL, urlstr.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
     /* example.com is redirected, so we tell libcurl to follow redirection */ 
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
  
@@ -165,56 +166,5 @@ void edsServerHandler::storeServerData()
   mysql_close(connection);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
